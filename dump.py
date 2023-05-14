@@ -6,22 +6,22 @@
 
 from __future__ import print_function
 from __future__ import unicode_literals
-import sys
-import codecs
-import frida
-import threading
-import os
-import shutil
-import time
+
 import argparse
-import tempfile
-import subprocess
+import codecs
+import os
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+import traceback
+
+import frida
 import paramiko
-from paramiko import SSHClient
 from scp import SCPClient
 from tqdm import tqdm
-import traceback
 
 IS_PY2 = sys.version_info[0] < 3
 if IS_PY2:
@@ -93,8 +93,9 @@ def generate_ipa(path, display_name):
         print(e)
         finished.set()
 
+
 def on_message(message, data):
-    t = tqdm(unit='B',unit_scale=True,unit_divisor=1024,miniters=1)
+    t = tqdm(unit='B', unit_scale=True, unit_divisor=1024, miniters=1)
     last_sent = [0]
 
     def progress(filename, size, sent):
@@ -116,7 +117,7 @@ def on_message(message, data):
             scp_from = dump_path
             scp_to = PAYLOAD_PATH + '/'
 
-            with SCPClient(ssh.get_transport(), progress = progress, socket_timeout = 60) as scp:
+            with SCPClient(ssh.get_transport(), progress=progress, socket_timeout=60) as scp:
                 scp.get(scp_from, scp_to)
 
             chmod_dir = os.path.join(PAYLOAD_PATH, os.path.basename(dump_path))
@@ -134,7 +135,7 @@ def on_message(message, data):
 
             scp_from = app_path
             scp_to = PAYLOAD_PATH + '/'
-            with SCPClient(ssh.get_transport(), progress = progress, socket_timeout = 60) as scp:
+            with SCPClient(ssh.get_transport(), progress=progress, socket_timeout=60) as scp:
                 scp.get(scp_from, scp_to, recursive=True)
 
             chmod_dir = os.path.join(PAYLOAD_PATH, os.path.basename(app_path))
@@ -149,6 +150,7 @@ def on_message(message, data):
         if 'done' in payload:
             finished.set()
     t.close()
+
 
 def compare_applications(a, b):
     a_is_running = a.pid != 0
@@ -271,7 +273,7 @@ def open_target_app(device, name_or_bundleid):
         else:
             session = device.attach(pid)
     except Exception as e:
-        print(e) 
+        print(e)
 
     return session, display_name, bundle_identifier
 

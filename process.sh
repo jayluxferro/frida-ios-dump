@@ -18,7 +18,7 @@ echo "Decrypting ${#ORIGINAL_IPAS[@]} apps"
 APP_COUNTER=0
 for ORIGINAL_IPA in "${ORIGINAL_IPAS[@]}"; do
     APP_COUNTER=$((APP_COUNTER + 1))
-    echo "#### Decryting app number: ${APP_COUNTER}"
+    echo "#### Decrypting app number: ${APP_COUNTER}"
     APP_BUNDLE_ID=""
     ESCAPED_IPA_PATH=$( echo "${ORIGINAL_IPA}" | sed 's/ /\\ /g' | sed 's/&/\\&/g' )
 
