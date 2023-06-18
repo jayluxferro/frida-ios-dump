@@ -22,7 +22,6 @@ import frida
 import paramiko
 from scp import SCPClient
 from tqdm import tqdm
-from time import sleep
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -43,8 +42,6 @@ finished = threading.Event()
 
 
 def get_iphone(device_type: str):
-    if int(frida.__version__.split('.')[0]) < 12:
-        Type = 'tether'
     device_manager = frida.get_device_manager()
     changed = threading.Event()
 
