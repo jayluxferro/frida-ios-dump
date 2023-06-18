@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Author : AloneMonkey
-# blog: www.alonemonkey.com
+# Maintained By: jayluxferro
 
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -22,11 +22,7 @@ import frida
 import paramiko
 from scp import SCPClient
 from tqdm import tqdm
-
-IS_PY2 = sys.version_info[0] < 3
-if IS_PY2:
-    reload(sys)
-    sys.setdefaultencoding('utf8')
+from time import sleep
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -46,8 +42,7 @@ file_dict = {}
 finished = threading.Event()
 
 
-def get_usb_iphone():
-    Type = 'usb'
+def get_iphone(device_type: str):
     if int(frida.__version__.split('.')[0]) < 12:
         Type = 'tether'
     device_manager = frida.get_device_manager()
@@ -60,7 +55,13 @@ def get_usb_iphone():
 
     device = None
     while device is None:
-        devices = [dev for dev in device_manager.enumerate_devices() if dev.type == Type]
+        if device_type == 'usb':
+            # usb
+            devices = [dev for dev in device_manager.enumerate_devices() if dev.type == device_type]
+        else:
+            # remote
+            devices = [dev for dev in device_manager.enumerate_devices() if dev.id == device_type]
+
         if len(devices) == 0:
             print('Waiting for USB device...')
             changed.wait()
@@ -100,7 +101,7 @@ def on_message(message, data):
 
     def progress(filename, size, sent):
         baseName = os.path.basename(filename)
-        if IS_PY2 or isinstance(baseName, bytes):
+        if isinstance(baseName, bytes):
             t.desc = baseName.decode("utf-8")
         else:
             t.desc = baseName
@@ -291,8 +292,15 @@ def start_dump(session, ipa_name):
         session.detach()
 
 
+def usb_or_remote(value):
+    if value.lower() == "usb":
+        return "usb"
+    return value
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='frida-ios-dump (by AloneMonkey v2.0)')
+    parser.add_argument("-d", "--device", type=usb_or_remote, default="usb", help="Specify a device ID")
     parser.add_argument('-l', '--list', dest='list_applications', action='store_true', help='List the installed apps')
     parser.add_argument('-o', '--output', dest='output_ipa', help='Specify name of the decrypted IPA')
     parser.add_argument('-H', '--host', dest='ssh_host', help='Specify SSH hostname')
@@ -311,7 +319,7 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(exit_code)
 
-    device = get_usb_iphone()
+    device = get_iphone(args.device)
 
     if args.list_applications:
         list_applications(device)
