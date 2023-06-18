@@ -38,11 +38,10 @@ Done.
 
 Congratulations!!! You've got a decrypted IPA file.
 
-Drag to [MonkeyDev](https://github.com/AloneMonkey/MonkeyDev), Happy hacking!
 
 ## Support
 
-Python 2.x and 3.x
+Python 3.x
 
 
 ### issues
