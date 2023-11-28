@@ -281,7 +281,7 @@ def start_dump(session, ipa_name):
 
     script = load_js_file(session, DUMP_JS)
     script.post('dump')
-    finished.wait(timeout=10)
+    finished.wait(timeout=60)
 
     generate_ipa(PAYLOAD_PATH, ipa_name)
 
